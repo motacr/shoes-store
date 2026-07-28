@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة متجر الأحذية</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --primary-color: #2563eb;
+      --sidebar-bg: #1e293b;
+      --sidebar-text: #ffffff;
+      --border-color: #e2e8f0;
+    }
+
+    body.dark-theme {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --sidebar-bg: #020617;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
+
+    /* Top Navigation Header for Mobile */
+    .mobile-header {
+      background-color: var(--sidebar-bg);
+      color: var(--sidebar-text);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .theme-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    /* Layout Wrapper */
+    .container {
+      padding: 15px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Stat Cards Grid */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    .card i { font-size: 1.6rem; }
+    .icon-blue { color: #2563eb; }
+    .icon-orange { color: #f97316; }
+
+    .card h3 {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+
+    .card p {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    /* Form Section */
+    .form-section, .table-section {
+      background-color: var(--card-bg);
+      padding: 18px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    #add-shoe-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .form-group-full {
+      grid-column: 1 / -1;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      width: 100%;
+    }
+
+    .add-btn {
+      grid-column: 1 / -1;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-top: 5px;
+    }
+
+    /* Responsive Table Container */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: right;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.88rem;
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.03);
+      color: #64748b;
+    }
+
+    .status-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .in-stock { background: #dcfce7; color: #15803d; }
+    .low-stock { background: #fee2e2; color: #b91c1c; }
+
+    .delete-btn {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 5px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    /* PWA Install Banner */
+    #install-banner {
+      display: none;
+      background: #2563eb;
+      color: white;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #install-banner button {
+      background: white;
+      color: #2563eb;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mobile-header">
+    <div class="logo">
+      <i class="fa-solid fa-shoe-prints"></i>
+      <span>متجر الأحذية PWA</span>
+    </div>
+    <button id="theme-toggle" class="theme-btn">
+      <i class="fa-solid fa-moon"></i> داكن
+    </button>
+  </header>
+
+  <div class="container">
+
+    <!-- Install App Prompt Banner -->
+    <div id="install-banner">
+      <span>ثبّت التطبيق على شاشة جوالك!</span>
+      <button id="install-btn">تثبيت الأن</button>
+    </div>
+
+    <!-- Stats -->
+    <section class="stats-cards">
+      <div class="card">
+        <i class="fa-solid fa-shoe-prints icon-blue"></i>
+        <div>
+          <h3>إجمالي الموديلات</h3>
+          <p id="total-shoes">0</p>
+        </div>
+      </div>
+      <div class="card">
+        <i class="fa-solid fa-boxes-stacked icon-orange"></i>
+        <div>
+          <h3>المخزون الكلي</h3>
+          <p id="total-stock">0 قطعة</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Form -->
+    <section class="form-section">
+      <h2 class="section-title"><i class="fa-solid fa-plus-circle" style="color: var(--primary-color);"></i> إضافة حذاء جديد</h2>
+      <form id="add-shoe-form">
+        <div class="form-group form-group-full">
+          <label>اسم الحذاء / الموديل:</label>
+          <input type="text" id="shoe-name" placeholder="مثال: Nike Air Max" required>
+        </div>
+
+        <div class="form-group">
+          <label>المقاس (Size):</label>
+          <select id="shoe-size" required>
+            <option value="40">40</option>
+            <option value="41">41</option>
+            <option value="42" selected>42</option>
+            <option value="43">43</option>
+            <option value="44">44</option>
+            <option value="45">45</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>السعر ($):</label>
+          <input type="number" id="shoe-price" placeholder="85" min="1" required>
+        </div>
+
+        <div class="form-group form-group-full">
+          <label>الكمية بالمخزن:</label>
+          <input type="number" id="shoe-stock" placeholder="10" min="1" required>
+        </div>
+
+        <button type="submit" class="add-btn"><i class="fa-solid fa-save"></i> حفظ في المخزون</button>
+      </form>
+    </section>
+
+    <!-- Table -->
+    <section class="table-section">
+      <h2 class="section-title"><i class="fa-solid fa-list" style="color: var(--primary-color);"></i> المنتجات الحالية</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الاسم</th>
+              <th>المقاس</th>
+              <th>السعر</th>
+              <th>المخزون</th>
+              <th>الحالة</th>
+              <th>حذف</th>
+            </tr>
+          </thead>
+          <tbody id="shoes-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker Registered!', reg))
+          .catch(err => console.log('Service Worker Failed!', err));
+      });
+    }
+
+    // App Logic
+    let shoes = JSON.parse(localStorage.getItem('shoes_data')) || [
+      { id: 1, name: "Nike Air Jordan", size: "42", price: 120, stock: 15 },
+      { id: 2, name: "Adidas Ultraboost", size: "43", price: 110, stock: 3 },
+      { id: 3, name: "Puma Suede", size: "41", price: 75, stock: 8 }
+    ];
+
+    const shoesList = document.getElementById('shoes-list');
+    const shoeForm = document.getElementById('add-shoe-form');
+    const totalShoesEl = document.getElementById('total-shoes');
+    const totalStockEl = document.getElementById('total-stock');
+    const themeToggleBtn = document.getElementById('theme-toggle');
+
+    function saveData() {
+      localStorage.setItem('shoes_data', JSON.stringify(shoes));
+    }
+
+    function renderShoes() {
+      shoesList.innerHTML = '';
+      let totalStockCount = 0;
+
+      shoes.forEach((shoe, index) => {
+        totalStockCount += Number(shoe.stock);
+        const statusClass = shoe.stock > 5 ? 'in-stock' : 'low-stock';
+        const statusText = shoe.stock > 5 ? 'متوفر' : 'منخفض';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td><strong>${shoe.name}</strong></td>
+          <td>${shoe.size}</td>
+          <td>$${shoe.price}</td>
+          <td>${shoe.stock}</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td>
+            <button class="delete-btn" onclick="deleteShoe(${shoe.id})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        `;
+        shoesList.appendChild(row);
+      });
+
+      totalShoesEl.textContent = shoes.length;
+      totalStockEl.textContent = `${totalStockCount} قطعة`;
+      saveData();
+    }
+
+    shoeForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const newShoe = {
+        id: Date.now(),
+        name: document.getElementById('shoe-name').value,
+        size: document.getElementById('shoe-size').value,
+        price: Number(document.getElementById('shoe-price').value),
+        stock: Number(document.getElementById('shoe-stock').value)
+      };
+
+      shoes.push(newShoe);
+      renderShoes();
+      shoeForm.reset();
+    });
+
+    function deleteShoe(id) {
+      shoes = shoes.filter(shoe => shoe.id !== id);
+      renderShoes();
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      const isDark = document.body.classList.contains('dark-theme');
+      themeToggleBtn.innerHTML = isDark 
+        ? '<i class="fa-solid fa-sun"></i> فاتح' 
+        : '<i class="fa-solid fa-moon"></i> داكن';
+    });
+
+    renderShoes();
+
+    // PWA Prompt Handle
+    let deferredPrompt;
+    const installBanner = document.getElementById('install-banner');
+    const installBtn = document.getElementById('install-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.style.display = 'flex';
+    });
+
+    installBtn.addEventListener('click', () => {
+      installBanner.style.display = 'none';
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          }
+          deferredPrompt = null;
+        });
+      }
+    });
+  </script>
+</body>
+</html>
