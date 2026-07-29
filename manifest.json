@@ -1,20 +1,21 @@
 {
-  "name": "الميزانية والمشتريات",
-  "short_name": "الميزانية",
-  "start_url": "./calculator.html",
-  "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "short_name": "مصاريف منزلية",
+  "name": "مصاريف منزلية",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2344/2344132.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/25/25694.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2344/2344132.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/25/25694.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "start_url": "calculator.html",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
 }
