@@ -365,11 +365,9 @@
       itemForm.reset();
       saveData();
 
-      // إظهار تنبيه مؤقت
       toastMsg.style.display = 'block';
       setTimeout(() => { toastMsg.style.display = 'none'; }, 2000);
       
-      // ترك المستخدم في نفس الصفحة لإضافة المزيد
       itemNameInput.focus();
     });
 
@@ -393,19 +391,22 @@
             <span>${item.price.toFixed(2)} ₪</span>
           </div>
           <div class="item-actions">
-            <button onclick="editItem(${item.id})">✏️</button>
-            <button onclick="deleteItem(${item.id})">🗑️</button>
+            <button onclick="editItem(${item.id})" title="تعديل">✏️</button>
+            <button onclick="deleteItem(${item.id}, '${item.name}')" title="حذف">❌</button>
           </div>
         `;
         itemsContainer.appendChild(li);
       });
     }
 
-    function deleteItem(id) {
-      items = items.filter(item => item.id !== id);
-      saveData();
-      renderItems();
-      updateStats();
+    function deleteItem(id, name) {
+      const confirmDelete = confirm(`هل أنت تأكد من حذف "${name}" من القائمة؟`);
+      if (confirmDelete) {
+        items = items.filter(item => item.id !== id);
+        saveData();
+        renderItems();
+        updateStats();
+      }
     }
 
     function editItem(id) {
@@ -461,4 +462,4 @@
     updateStats();
   </script>
 </body>
-</html>
+  </html>
