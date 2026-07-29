@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مُدير الميزانية والمشتريات</title>
 
-  <!-- إعدادات التثبيت كـ تطبيق (PWA) -->
+  <!-- ربط ملف التثبيت المباشر -->
+  <link rel="manifest" href="manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="الميزانية">
@@ -35,7 +36,7 @@
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding: 15px 15px 80px 15px; /* مسافة من الأسفل لأزرار التنقل */
+      padding: 15px 15px 80px 15px;
       max-width: 500px;
       margin: 0 auto;
     }
@@ -52,7 +53,6 @@
       color: var(--accent-gold);
     }
 
-    /* التنقل السفلي */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -89,7 +89,6 @@
       font-size: 1.2rem;
     }
 
-    /* إدارة الصفحات */
     .page {
       display: none;
     }
@@ -98,7 +97,6 @@
       display: block;
     }
 
-    /* التصميم العام للبطاقات */
     .card {
       background-color: var(--card-bg);
       border-radius: 16px;
@@ -145,7 +143,6 @@
       cursor: pointer;
     }
 
-    /* قائمة العناصر */
     .item-list {
       list-style: none;
       margin-top: 10px;
@@ -179,7 +176,6 @@
       margin-right: 8px;
     }
 
-    /* بطاقات الإحصائيات */
     .stat-box {
       text-align: center;
       margin-bottom: 12px;
@@ -215,7 +211,7 @@
     <h1 id="page-title">🛒 قائمة المشتريات</h1>
   </div>
 
-  <!-- الصفحة الأولى: إضافة والمشتريات -->
+  <!-- الصفحة الأولى: المشتريات -->
   <div id="page-items" class="page active">
     <div class="card">
       <h3 style="margin-bottom:12px; color: var(--accent-gold); font-size: 1rem;" id="form-title">إضافة عنصر جديد</h3>
@@ -239,11 +235,11 @@
     </div>
   </div>
 
-  <!-- الصفحة الثانية: الراتب والإحصائيات -->
+  <!-- الصفحة الثانية: الإحصائيات والراتب -->
   <div id="page-stats" class="page">
     <div class="card">
       <div class="form-group">
-        <label>الراتب / الدخل الشهري (₪)</label>
+        <label>المرتب / الدخل الشهري (₪)</label>
         <input type="number" id="monthly-salary" placeholder="أدخل راتبك هنا" step="10">
       </div>
     </div>
@@ -256,7 +252,7 @@
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
       <div class="card stat-box">
-        <div class="stat-title">إجمالي الراتب</div>
+        <div class="stat-title">إجمالي المرتب</div>
         <div id="stat-salary" class="stat-val" style="color: var(--accent-gold); font-size: 1.3rem;">0 ₪</div>
       </div>
       <div class="card stat-box">
@@ -266,13 +262,13 @@
     </div>
   </div>
 
-  <!-- شريط التنقل السفلي -->
+  <!-- الشريط السفلي للتنقل -->
   <div class="bottom-nav">
-    <button class="nav-btn active" onclick="switchPage('items', '🛒 قائمة المشتريات')">
+    <button class="nav-btn active" onclick="switchPage('items', '🛒 قائمة المشتريات', this)">
       <span>🛒</span>
       المشتريات
     </button>
-    <button class="nav-btn" onclick="switchPage('stats', '📊 الإحصائيات والميزانية')">
+    <button class="nav-btn" onclick="switchPage('stats', '📊 الإحصائيات والميزانية', this)">
       <span>📊</span>
       الإحصائيات
     </button>
@@ -291,19 +287,17 @@
     const itemsContainer = document.getElementById('items-container');
     const salaryInput = document.getElementById('monthly-salary');
 
-    // التنقل بين الصفحات
-    function switchPage(pageId, title) {
+    function switchPage(pageId, title, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
 
       document.getElementById(`page-${pageId}`).classList.add('active');
       document.getElementById('page-title').textContent = title;
       
-      event.currentTarget.classList.add('active');
+      btn.classList.add('active');
       updateStats();
     }
 
-    // إضافة أو تعديل عنصر
     itemForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const name = itemNameInput.value.trim();
@@ -311,7 +305,6 @@
       const editId = editIdInput.value;
 
       if (editId) {
-        // تعديل عنصر موجود
         const index = items.findIndex(i => i.id == editId);
         if (index !== -1) {
           items[index].name = name;
@@ -321,7 +314,6 @@
         formTitle.textContent = 'إضافة عنصر جديد';
         editIdInput.value = '';
       } else {
-        // إضافة جديد
         items.push({ id: Date.now(), name, price });
       }
 
@@ -330,7 +322,6 @@
       updateStats();
     });
 
-    // عرض قائمة العناصر
     function renderItems() {
       itemsContainer.innerHTML = '';
       if (items.length === 0) {
@@ -355,14 +346,12 @@
       });
     }
 
-    // حذف عنصر
     function deleteItem(id) {
       items = items.filter(item => item.id !== id);
       renderItems();
       updateStats();
     }
 
-    // إعداد التعديل
     function editItem(id) {
       const item = items.find(i => i.id === id);
       if (item) {
@@ -374,7 +363,6 @@
       }
     }
 
-    // تحديث الراتب والإحصائيات
     salaryInput.addEventListener('input', function() {
       salary = parseFloat(salaryInput.value) || 0;
       updateStats();
@@ -387,7 +375,7 @@
       document.getElementById('stat-salary').textContent = `${salary.toFixed(2)} ₪`;
       document.getElementById('stat-expenses').textContent = `${totalExpenses.toFixed(2)} ₪`;
 
-      const netEl = document.getElementById('net-result') || document.getElementById('net-balance');
+      const netEl = document.getElementById('net-balance');
       const badgeEl = document.getElementById('status-badge');
 
       if (net > 0) {
@@ -398,7 +386,7 @@
       } else if (net < 0) {
         netEl.textContent = `${net.toFixed(2)} ₪`;
         netEl.style.color = 'var(--red-expense)';
-        badgeEl.textContent = `الرصيد بالسالب (تجاوزت الميزانية بـ ${Math.abs(net).toFixed(2)} ₪)`;
+        badgeEl.textContent = `الرصيد بالسالب (عجز بـ ${Math.abs(net).toFixed(2)} ₪)`;
         badgeEl.className = 'status-badge badge-bad';
       } else {
         netEl.textContent = `0.00 ₪`;
@@ -411,4 +399,4 @@
     renderItems();
   </script>
 </body>
-            </html>
+  </html>
