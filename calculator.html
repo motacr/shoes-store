@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مُدير الميزانية والمشتريات</title>
+  <title>مصاريف منزلية</title>
 
   <!-- ربط ملف التثبيت المباشر -->
   <link rel="manifest" href="manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="الميزانية">
+  <meta name="apple-mobile-web-app-title" content="مصاريف منزلية">
   <meta name="theme-color" content="#0f172a">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
-  <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/25/25694.png">
+  <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/25/25694.png">
 
   <style>
     :root {
@@ -53,7 +53,6 @@
       color: var(--accent-gold);
     }
 
-    /* الشريط السفلي للتنقل */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -210,13 +209,27 @@
 
     .badge-ok { background-color: rgba(16, 185, 129, 0.2); color: var(--green-income); }
     .badge-bad { background-color: rgba(239, 68, 68, 0.2); color: var(--red-expense); }
+
+    .toast {
+      display: none;
+      background-color: var(--green-income);
+      color: #000;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1 id="page-title">➕ إضافة عنصر جديد</h1>
+    <h1 id="page-title">🏠 مصاريف منزلية</h1>
   </div>
+
+  <!-- رسالة تأكيد الإضافة -->
+  <div id="toast-msg" class="toast">تمت إضافة العنصر بنجاح! ✔️</div>
 
   <!-- الصفحة الأولى: إضافة عنصر -->
   <div id="page-add" class="page active">
@@ -305,6 +318,7 @@
     const formTitle = document.getElementById('form-title');
     const itemsContainer = document.getElementById('items-container');
     const salaryInput = document.getElementById('monthly-salary');
+    const toastMsg = document.getElementById('toast-msg');
 
     if (salary > 0) {
       salaryInput.value = salary;
@@ -350,10 +364,13 @@
 
       itemForm.reset();
       saveData();
+
+      // إظهار تنبيه مؤقت
+      toastMsg.style.display = 'block';
+      setTimeout(() => { toastMsg.style.display = 'none'; }, 2000);
       
-      // التوجه لقائمة المشتريات مباشرة بعد الإضافة
-      const itemsNavBtn = document.querySelectorAll('.nav-btn')[1];
-      switchPage('items', '🛒 قائمة المشتريات', itemsNavBtn);
+      // ترك المستخدم في نفس الصفحة لإضافة المزيد
+      itemNameInput.focus();
     });
 
     function renderItems() {
@@ -401,7 +418,6 @@
         btnSubmit.textContent = 'حفظ التعديل';
         formTitle.textContent = 'تعديل السلعة';
 
-        // الانتقال لصفحة الإضافة لتعديل العنصر
         const addNavBtn = document.querySelectorAll('.nav-btn')[0];
         switchPage('add', '✏️ تعديل عنصر', addNavBtn);
       }
@@ -445,4 +461,4 @@
     updateStats();
   </script>
 </body>
-            </html>
+</html>
