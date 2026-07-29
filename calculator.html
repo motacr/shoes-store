@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حاسبة المصاريف والدخل</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>مُدير الميزانية والمشتريات</title>
+
+  <!-- إعدادات التثبيت كـ تطبيق (PWA) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="الميزانية">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
+  <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/2344/2344132.png">
+
   <style>
     :root {
       --bg-dark: #0f172a;
@@ -27,108 +35,86 @@
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      padding: 20px;
+      padding: 15px 15px 80px 15px; /* مسافة من الأسفل لأزرار التنقل */
       max-width: 500px;
       margin: 0 auto;
     }
 
     .header {
       text-align: center;
-      margin-bottom: 25px;
-      padding-bottom: 15px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
       border-bottom: 1px solid var(--border-color);
     }
 
     .header h1 {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       color: var(--accent-gold);
     }
 
-    .result-card {
+    /* التنقل السفلي */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
       background-color: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
-      margin-bottom: 20px;
-      text-align: center;
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid var(--border-color);
+      z-index: 1000;
     }
 
-    .result-title {
-      font-size: 0.9rem;
+    .nav-btn {
+      background: none;
+      border: none;
       color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .result-amount {
-      font-size: 2.2rem;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
       font-size: 0.85rem;
       font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
 
-    .badge-surplus {
-      background-color: rgba(16, 185, 129, 0.2);
-      color: var(--green-income);
+    .nav-btn.active {
+      color: var(--accent-gold);
     }
 
-    .badge-deficit {
-      background-color: rgba(239, 68, 68, 0.2);
-      color: var(--red-expense);
-    }
-
-    .badge-zero {
-      background-color: rgba(148, 163, 184, 0.2);
-      color: var(--text-muted);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
-    .stat-box {
-      background-color: var(--card-bg);
-      padding: 15px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-    }
-
-    .stat-box label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .stat-box .val {
+    .nav-btn span {
       font-size: 1.2rem;
-      font-weight: bold;
     }
 
-    .calc-form {
+    /* إدارة الصفحات */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* التصميم العام للبطاقات */
+    .card {
       background-color: var(--card-bg);
-      padding: 20px;
       border-radius: 16px;
+      padding: 18px;
       border: 1px solid var(--border-color);
+      margin-bottom: 15px;
     }
 
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 12px;
     }
 
     label {
       display: block;
       font-size: 0.85rem;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
       color: var(--text-muted);
     }
 
@@ -143,13 +129,13 @@
       outline: none;
     }
 
-    input:focus, select:focus {
+    input:focus {
       border-color: var(--accent-gold);
     }
 
-    .btn-calc {
+    .btn {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       border-radius: 10px;
       border: none;
       background-color: var(--accent-gold);
@@ -157,107 +143,272 @@
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
-      transition: opacity 0.2s;
     }
 
-    .btn-calc:active {
-      opacity: 0.8;
+    /* قائمة العناصر */
+    .item-list {
+      list-style: none;
+      margin-top: 10px;
     }
+
+    .item-card {
+      background-color: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-info div {
+      font-weight: bold;
+    }
+
+    .item-info span {
+      font-size: 0.85rem;
+      color: var(--green-income);
+    }
+
+    .item-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      margin-right: 8px;
+    }
+
+    /* بطاقات الإحصائيات */
+    .stat-box {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .stat-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .stat-val {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .badge-ok { background-color: rgba(16, 185, 129, 0.2); color: var(--green-income); }
+    .badge-bad { background-color: rgba(239, 68, 68, 0.2); color: var(--red-expense); }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h1><i class="fa-solid fa-calculator"></i> حاسبة المصاريف والدخل</h1>
+    <h1 id="page-title">🛒 قائمة المشتريات</h1>
   </div>
 
-  <div class="result-card">
-    <div class="result-title">النتيجة النهائية (الزيادة / النقص)</div>
-    <div id="net-result" class="result-amount" style="color: var(--text-main);">$0.00</div>
-    <span id="status-badge" class="status-badge badge-zero">متوازن</span>
-  </div>
-
-  <div class="grid-2">
-    <div class="stat-box">
-      <label><i class="fa-solid fa-arrow-down" style="color: var(--green-income);"></i> مجموع الدخل</label>
-      <div id="income-sum" class="val" style="color: var(--green-income);">$0.00</div>
+  <!-- الصفحة الأولى: إضافة والمشتريات -->
+  <div id="page-items" class="page active">
+    <div class="card">
+      <h3 style="margin-bottom:12px; color: var(--accent-gold); font-size: 1rem;" id="form-title">إضافة عنصر جديد</h3>
+      <form id="item-form">
+        <input type="hidden" id="edit-id">
+        <div class="form-group">
+          <label>اسم العنصر / السلعة</label>
+          <input type="text" id="item-name" placeholder="مثال: حذاء رياضي" required>
+        </div>
+        <div class="form-group">
+          <label>السعر (بالشيكل ₪)</label>
+          <input type="number" id="item-price" step="0.5" placeholder="0.00" required>
+        </div>
+        <button type="submit" class="btn" id="btn-submit">إضافة للقائمة</button>
+      </form>
     </div>
-    <div class="stat-box">
-      <label><i class="fa-solid fa-arrow-up" style="color: var(--red-expense);"></i> مجموع المصاريف</label>
-      <div id="expense-sum" class="val" style="color: var(--red-expense);">$0.00</div>
+
+    <div class="card">
+      <h3 style="font-size: 0.95rem; color: var(--text-muted);">الأشياء التي سيتم شراؤها:</h3>
+      <ul id="items-container" class="item-list"></ul>
     </div>
   </div>
 
-  <div class="calc-form">
-    <h3 style="font-size: 1rem; margin-bottom: 15px; color: var(--accent-gold);">إدخال مبلغ جديد للحساب</h3>
-    <form id="calc-form">
+  <!-- الصفحة الثانية: الراتب والإحصائيات -->
+  <div id="page-stats" class="page">
+    <div class="card">
       <div class="form-group">
-        <label>نوع المبلغ</label>
-        <select id="type">
-          <option value="income">دخل (وارد +)</option>
-          <option value="expense">مصروف (صادر -)</option>
-        </select>
+        <label>الراتب / الدخل الشهري (₪)</label>
+        <input type="number" id="monthly-salary" placeholder="أدخل راتبك هنا" step="10">
       </div>
+    </div>
 
-      <div class="form-group">
-        <label>المبلغ ($)</label>
-        <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+    <div class="card stat-box">
+      <div class="stat-title">الرصيد المتبقي / الفائض أو العجز</div>
+      <div id="net-balance" class="stat-val">0.00 ₪</div>
+      <span id="status-badge" class="status-badge badge-ok">الرصيد متوازن</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+      <div class="card stat-box">
+        <div class="stat-title">إجمالي الراتب</div>
+        <div id="stat-salary" class="stat-val" style="color: var(--accent-gold); font-size: 1.3rem;">0 ₪</div>
       </div>
+      <div class="card stat-box">
+        <div class="stat-title">مجموع المشتريات</div>
+        <div id="stat-expenses" class="stat-val" style="color: var(--red-expense); font-size: 1.3rem;">0 ₪</div>
+      </div>
+    </div>
+  </div>
 
-      <button type="submit" class="btn-calc">احسب واضف</button>
-    </form>
+  <!-- شريط التنقل السفلي -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchPage('items', '🛒 قائمة المشتريات')">
+      <span>🛒</span>
+      المشتريات
+    </button>
+    <button class="nav-btn" onclick="switchPage('stats', '📊 الإحصائيات والميزانية')">
+      <span>📊</span>
+      الإحصائيات
+    </button>
   </div>
 
   <script>
-    let totalIncome = 0;
-    let totalExpense = 0;
+    let items = [];
+    let salary = 0;
 
-    const form = document.getElementById('calc-form');
-    const incomeSumEl = document.getElementById('income-sum');
-    const expenseSumEl = document.getElementById('expense-sum');
-    const netResultEl = document.getElementById('net-result');
-    const statusBadgeEl = document.getElementById('status-badge');
+    const itemForm = document.getElementById('item-form');
+    const itemNameInput = document.getElementById('item-name');
+    const itemPriceInput = document.getElementById('item-price');
+    const editIdInput = document.getElementById('edit-id');
+    const btnSubmit = document.getElementById('btn-submit');
+    const formTitle = document.getElementById('form-title');
+    const itemsContainer = document.getElementById('items-container');
+    const salaryInput = document.getElementById('monthly-salary');
 
-    form.addEventListener('submit', function(e) {
+    // التنقل بين الصفحات
+    function switchPage(pageId, title) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      document.getElementById(`page-${pageId}`).classList.add('active');
+      document.getElementById('page-title').textContent = title;
+      
+      event.currentTarget.classList.add('active');
+      updateStats();
+    }
+
+    // إضافة أو تعديل عنصر
+    itemForm.addEventListener('submit', function(e) {
       e.preventDefault();
+      const name = itemNameInput.value.trim();
+      const price = parseFloat(itemPriceInput.value) || 0;
+      const editId = editIdInput.value;
 
-      const type = document.getElementById('type').value;
-      const amount = parseFloat(document.getElementById('amount').value) || 0;
-
-      if (type === 'income') {
-        totalIncome += amount;
+      if (editId) {
+        // تعديل عنصر موجود
+        const index = items.findIndex(i => i.id == editId);
+        if (index !== -1) {
+          items[index].name = name;
+          items[index].price = price;
+        }
+        btnSubmit.textContent = 'إضافة للقائمة';
+        formTitle.textContent = 'إضافة عنصر جديد';
+        editIdInput.value = '';
       } else {
-        totalExpense += amount;
+        // إضافة جديد
+        items.push({ id: Date.now(), name, price });
       }
 
-      updateCalculatorUI();
-      form.reset();
+      itemForm.reset();
+      renderItems();
+      updateStats();
     });
 
-    function updateCalculatorUI() {
-      incomeSumEl.textContent = `$${totalIncome.toFixed(2)}`;
-      expenseSumEl.textContent = `$${totalExpense.toFixed(2)}`;
+    // عرض قائمة العناصر
+    function renderItems() {
+      itemsContainer.innerHTML = '';
+      if (items.length === 0) {
+        itemsContainer.innerHTML = '<li style="text-align:center; color: var(--text-muted); padding:10px;">لا يوجد عناصر مضافة بعد</li>';
+        return;
+      }
 
-      const diff = totalIncome - totalExpense;
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'item-card';
+        li.innerHTML = `
+          <div class="item-info">
+            <div>${item.name}</div>
+            <span>${item.price.toFixed(2)} ₪</span>
+          </div>
+          <div class="item-actions">
+            <button onclick="editItem(${item.id})">✏️</button>
+            <button onclick="deleteItem(${item.id})">🗑️</button>
+          </div>
+        `;
+        itemsContainer.appendChild(li);
+      });
+    }
 
-      if (diff > 0) {
-        netResultEl.textContent = `+$${diff.toFixed(2)}`;
-        netResultEl.style.color = 'var(--green-income)';
-        statusBadgeEl.textContent = 'زيادة (فائض)';
-        statusBadgeEl.className = 'status-badge badge-surplus';
-      } else if (diff < 0) {
-        netResultEl.textContent = `-$${Math.abs(diff).toFixed(2)}`;
-        netResultEl.style.color = 'var(--red-expense)';
-        statusBadgeEl.textContent = 'نقص (عجز)';
-        statusBadgeEl.className = 'status-badge badge-deficit';
-      } else {
-        netResultEl.textContent = `$0.00`;
-        netResultEl.style.color = 'var(--text-main)';
-        statusBadgeEl.textContent = 'متوازن';
-        statusBadgeEl.className = 'status-badge badge-zero';
+    // حذف عنصر
+    function deleteItem(id) {
+      items = items.filter(item => item.id !== id);
+      renderItems();
+      updateStats();
+    }
+
+    // إعداد التعديل
+    function editItem(id) {
+      const item = items.find(i => i.id === id);
+      if (item) {
+        itemNameInput.value = item.name;
+        itemPriceInput.value = item.price;
+        editIdInput.value = item.id;
+        btnSubmit.textContent = 'حفظ التعديل';
+        formTitle.textContent = 'تعديل العنصر';
       }
     }
+
+    // تحديث الراتب والإحصائيات
+    salaryInput.addEventListener('input', function() {
+      salary = parseFloat(salaryInput.value) || 0;
+      updateStats();
+    });
+
+    function updateStats() {
+      const totalExpenses = items.reduce((sum, item) => sum + item.price, 0);
+      const net = salary - totalExpenses;
+
+      document.getElementById('stat-salary').textContent = `${salary.toFixed(2)} ₪`;
+      document.getElementById('stat-expenses').textContent = `${totalExpenses.toFixed(2)} ₪`;
+
+      const netEl = document.getElementById('net-result') || document.getElementById('net-balance');
+      const badgeEl = document.getElementById('status-badge');
+
+      if (net > 0) {
+        netEl.textContent = `+${net.toFixed(2)} ₪`;
+        netEl.style.color = 'var(--green-income)';
+        badgeEl.textContent = `متبقي رصيد لديك`;
+        badgeEl.className = 'status-badge badge-ok';
+      } else if (net < 0) {
+        netEl.textContent = `${net.toFixed(2)} ₪`;
+        netEl.style.color = 'var(--red-expense)';
+        badgeEl.textContent = `الرصيد بالسالب (تجاوزت الميزانية بـ ${Math.abs(net).toFixed(2)} ₪)`;
+        badgeEl.className = 'status-badge badge-bad';
+      } else {
+        netEl.textContent = `0.00 ₪`;
+        netEl.style.color = 'var(--text-main)';
+        badgeEl.textContent = 'الرصيد متوازن';
+        badgeEl.className = 'status-badge badge-ok';
+      }
+    }
+
+    renderItems();
   </script>
 </body>
-</html>
+            </html>
