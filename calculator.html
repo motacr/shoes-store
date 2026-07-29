@@ -53,6 +53,7 @@
       color: var(--accent-gold);
     }
 
+    /* الشريط السفلي للتنقل */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -63,7 +64,7 @@
       background-color: var(--card-bg);
       display: flex;
       justify-content: space-around;
-      padding: 12px 0;
+      padding: 10px 0;
       border-top: 1px solid var(--border-color);
       z-index: 1000;
     }
@@ -72,13 +73,14 @@
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       font-weight: bold;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
+      width: 33%;
     }
 
     .nav-btn.active {
@@ -145,7 +147,6 @@
 
     .item-list {
       list-style: none;
-      margin-top: 10px;
     }
 
     .item-card {
@@ -166,6 +167,12 @@
     .item-info span {
       font-size: 0.85rem;
       color: var(--green-income);
+    }
+
+    .item-weight {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .item-actions button {
@@ -208,18 +215,22 @@
 <body>
 
   <div class="header">
-    <h1 id="page-title">🛒 قائمة المشتريات</h1>
+    <h1 id="page-title">➕ إضافة عنصر جديد</h1>
   </div>
 
-  <!-- الصفحة الأولى: المشتريات -->
-  <div id="page-items" class="page active">
+  <!-- الصفحة الأولى: إضافة عنصر -->
+  <div id="page-add" class="page active">
     <div class="card">
-      <h3 style="margin-bottom:12px; color: var(--accent-gold); font-size: 1rem;" id="form-title">إضافة عنصر جديد</h3>
+      <h3 style="margin-bottom:12px; color: var(--accent-gold); font-size: 1rem;" id="form-title">إدخال تفاصيل السلعة</h3>
       <form id="item-form">
         <input type="hidden" id="edit-id">
         <div class="form-group">
           <label>اسم العنصر / السلعة</label>
-          <input type="text" id="item-name" placeholder="مثال: حذاء رياضي" required>
+          <input type="text" id="item-name" placeholder="مثال: خضار / حذاء" required>
+        </div>
+        <div class="form-group">
+          <label>الوزن بالكيلو (اختياري)</label>
+          <input type="number" id="item-weight" step="0.1" placeholder="مثال: 1.5">
         </div>
         <div class="form-group">
           <label>السعر (بالشيكل ₪)</label>
@@ -228,14 +239,17 @@
         <button type="submit" class="btn" id="btn-submit">إضافة للقائمة</button>
       </form>
     </div>
+  </div>
 
+  <!-- الصفحة الثانية: قائمة المشتريات -->
+  <div id="page-items" class="page">
     <div class="card">
-      <h3 style="font-size: 0.95rem; color: var(--text-muted);">الأشياء التي سيتم شراؤها:</h3>
+      <h3 style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 12px;">الأشياء التي سيتم/تم شراؤها:</h3>
       <ul id="items-container" class="item-list"></ul>
     </div>
   </div>
 
-  <!-- الصفحة الثانية: الإحصائيات والراتب -->
+  <!-- الصفحة الثالثة: الإحصائيات والراتب -->
   <div id="page-stats" class="page">
     <div class="card">
       <div class="form-group">
@@ -264,7 +278,11 @@
 
   <!-- الشريط السفلي للتنقل -->
   <div class="bottom-nav">
-    <button class="nav-btn active" onclick="switchPage('items', '🛒 قائمة المشتريات', this)">
+    <button class="nav-btn active" onclick="switchPage('add', '➕ إضافة عنصر جديد', this)">
+      <span>➕</span>
+      إضافة
+    </button>
+    <button class="nav-btn" onclick="switchPage('items', '🛒 قائمة المشتريات', this)">
       <span>🛒</span>
       المشتريات
     </button>
@@ -275,12 +293,12 @@
   </div>
 
   <script>
-    // جلب البيانات المخزنة مسبقاً من ذاكرة الهاتف
     let items = JSON.parse(localStorage.getItem('budget_items')) || [];
     let salary = parseFloat(localStorage.getItem('budget_salary')) || 0;
 
     const itemForm = document.getElementById('item-form');
     const itemNameInput = document.getElementById('item-name');
+    const itemWeightInput = document.getElementById('item-weight');
     const itemPriceInput = document.getElementById('item-price');
     const editIdInput = document.getElementById('edit-id');
     const btnSubmit = document.getElementById('btn-submit');
@@ -288,12 +306,10 @@
     const itemsContainer = document.getElementById('items-container');
     const salaryInput = document.getElementById('monthly-salary');
 
-    // تعبئة خانة الراتب بالقيم المسبقة عند فتح التطبيق
     if (salary > 0) {
       salaryInput.value = salary;
     }
 
-    // حفظ البيانات في ذاكرة الجوال
     function saveData() {
       localStorage.setItem('budget_items', JSON.stringify(items));
       localStorage.setItem('budget_salary', salary);
@@ -307,12 +323,14 @@
       document.getElementById('page-title').textContent = title;
       
       btn.classList.add('active');
-      updateStats();
+      if (pageId === 'items') renderItems();
+      if (pageId === 'stats') updateStats();
     }
 
     itemForm.addEventListener('submit', function(e) {
       e.preventDefault();
       const name = itemNameInput.value.trim();
+      const weight = itemWeightInput.value ? parseFloat(itemWeightInput.value) : null;
       const price = parseFloat(itemPriceInput.value) || 0;
       const editId = editIdInput.value;
 
@@ -320,19 +338,22 @@
         const index = items.findIndex(i => i.id == editId);
         if (index !== -1) {
           items[index].name = name;
+          items[index].weight = weight;
           items[index].price = price;
         }
         btnSubmit.textContent = 'إضافة للقائمة';
-        formTitle.textContent = 'إضافة عنصر جديد';
+        formTitle.textContent = 'إدخال تفاصيل السلعة';
         editIdInput.value = '';
       } else {
-        items.push({ id: Date.now(), name, price });
+        items.push({ id: Date.now(), name, weight, price });
       }
 
       itemForm.reset();
       saveData();
-      renderItems();
-      updateStats();
+      
+      // التوجه لقائمة المشتريات مباشرة بعد الإضافة
+      const itemsNavBtn = document.querySelectorAll('.nav-btn')[1];
+      switchPage('items', '🛒 قائمة المشتريات', itemsNavBtn);
     });
 
     function renderItems() {
@@ -345,9 +366,13 @@
       items.forEach(item => {
         const li = document.createElement('li');
         li.className = 'item-card';
+        
+        const weightText = item.weight ? `<div class="item-weight">الوزن: ${item.weight} كجم</div>` : '';
+        
         li.innerHTML = `
           <div class="item-info">
             <div>${item.name}</div>
+            ${weightText}
             <span>${item.price.toFixed(2)} ₪</span>
           </div>
           <div class="item-actions">
@@ -370,10 +395,15 @@
       const item = items.find(i => i.id === id);
       if (item) {
         itemNameInput.value = item.name;
+        itemWeightInput.value = item.weight || '';
         itemPriceInput.value = item.price;
         editIdInput.value = item.id;
         btnSubmit.textContent = 'حفظ التعديل';
-        formTitle.textContent = 'تعديل العنصر';
+        formTitle.textContent = 'تعديل السلعة';
+
+        // الانتقال لصفحة الإضافة لتعديل العنصر
+        const addNavBtn = document.querySelectorAll('.nav-btn')[0];
+        switchPage('add', '✏️ تعديل عنصر', addNavBtn);
       }
     }
 
@@ -411,9 +441,8 @@
       }
     }
 
-    // تشغيل القراءة الأولى للبيانات المخزنة
     renderItems();
     updateStats();
   </script>
 </body>
-  </html>
+            </html>
